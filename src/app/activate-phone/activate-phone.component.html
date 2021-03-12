@@ -1,0 +1,143 @@
+<span #modalTitle [style.display]="'none'">
+  <span class="title-wrapper">
+    <span class="logo"></span>
+    <ng-container *ngTemplateOutlet="titleTemplate"></ng-container>
+  </span>
+</span>
+
+<ng-template #titleTemplate>
+  <ng-container *ngIf="step === 'change'" i18n>Change phone number</ng-container>
+  <ng-container *ngIf="step !== 'change'" i18n>Account Validation</ng-container>
+</ng-template>
+
+<xc-modal
+  *ngIf="modalTitle && phone$ | async as phone"
+  [title]="modalTitle.innerHTML"
+  [showBackButton]="step !== 'activate'"
+  (back)="setStep('activate')"
+  class="transparent-aside"
+>
+  <xc-media-box-r modal-aside template="r2" *ngIf="showPromotion" (promotionsChanged)="onPromotionLoad($event.length)"></xc-media-box-r>
+
+  <div [ngSwitch]="step">
+
+    <!-- Activate step -->
+    <ng-container *ngSwitchDefault>
+      <xc-inline-notification
+        *ngIf="(showInfo$ | async) else defaultMessage"
+        type="warning"
+        i18n-title title="Your account has not yet been activated!"
+        i18n-message message="Please activate your account using the link provided in your email, or by resend the validation code SMS or contact Customer Support."
+      ></xc-inline-notification>
+
+      <ng-template #defaultMessage>
+        <xc-inline-notification
+          type="success"
+          i18n-title title="An email has been sent to your registered email address!"
+          i18n-message message="Click on the link received to activate your account and have full access to the site."
+        ></xc-inline-notification>
+      </ng-template>
+
+      <div class="activate-content" ngClass.lt-sm="text-center">
+        <h4 i18n>Validate your account with the SMS</h4>
+        <p i18n>You can also validate your account by entering the validation code received by SMS below:</p>
+        <xc-activate-phone-form [phone]="phone"></xc-activate-phone-form>
+        <h4 class="need-help-title" i18n>Need Help?</h4>
+        <div class="text-sm">
+          <div class="help-row" [ngClass]="{'action-row': config.enableActionOnClickHelpRow }">
+            <div i18n="activate by SMS|In help section confirming if current phone number on record is correct">Is <span class="phone-number">{{ phone }}</span> not your number? - You can contact customer care to change it.</div>
+            <button
+              data-e2e="activate-phone-change-button"
+              class="btn-link"
+              (click)="setStep('change')"
+            >
+              <span *ngIf="!config.enableActionOnClickHelpRow; else actionIcon" i18n>Change it</span>
+            </button>
+          </div>
+          <div class="help-row" [ngClass]="{ 'disabled': resending, 'action-row': config.enableActionOnClickHelpRow }">
+            <div i18n>Didn't receive the SMS? - You can resend the code on the same number.</div>
+            <ng-container [ngSwitch]="canResend$ | async">
+              <button
+                data-e2e="activate-phone-resend-button"
+                type="button"
+                *ngSwitchCase="true"
+                class="btn-link"
+                (click)="resend(phone)"
+                [disabled]="resending"
+              >
+                <span *ngIf="!config.enableActionOnClickHelpRow; else actionIcon" i18n>Resend</span>
+              </button>
+              <div
+                class="action"
+                *ngSwitchCase="false"
+                #tooltip="matTooltip"
+                matTooltipPosition="above"
+                i18n-matTooltip matTooltip="Due to security reasons you need to wait 5 minutes to be able to resend the activation SMS"
+                (tap)="tooltip.show()"
+                (touchstart)="tooltip.show()">
+                <button
+                  type="button"
+                  class="btn-link"
+                  disabled
+                >
+                  <span *ngIf="!config.enableActionOnClickHelpRow; else actionIcon" i18n>Resend</span>
+                </button>
+                <mat-icon class="question-mark-icon" svgIcon="question-mark"></mat-icon>
+              </div>
+            </ng-container>
+          </div>
+          <div class="help-row" [ngClass]="{'action-row': config.enableActionOnClickHelpRow }" xcOpenChat>
+            <div i18n>None of the previous helped me. - I would like to speak with an agent.</div>
+            <button
+              class="btn-link"
+              data-e2e="activate-phone-contact-button"
+              type="button"
+            >
+              <span *ngIf="!config.enableActionOnClickHelpRow; else actionIcon" i18n>Contact support</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Change step -->
+    <ng-container *ngSwitchCase="'change'">
+      <p i18n="activate by SMS|On trying to change the phone number">Here's our currently recorded number. If this is not your number, please change it and save the new number.</p>
+      <xc-change-phone-form [phone]="phone" (phoneChange)="onPhoneChange($event)"></xc-change-phone-form>
+
+      <div ngClass.lt-sm="text-center">
+        <h4 i18n="activate by SMS|On trying to change the phone number">Need Help?</h4>
+        <div class="text-sm">
+          <ng-container i18n="activate by SMS|On trying to change the phone number">Speak to one of our agents. -</ng-container>&ngsp;
+          <button
+            class="btn-link size-sm"
+            data-e2e="activate-phone-contact-support-button"
+            type="button"
+            xcOpenChat
+            i18n="activate by SMS|On trying to change the phone number">Contact support</button>&ngsp;
+          <ng-container i18n="activate by SMS|On trying to change the phone number">24/7</ng-container>.&ngsp;
+
+            <button
+              data-e2e="activate-phone-enter-code-button"
+              type="button"
+              class="btn-link size-sm"
+              (click)="setStep('activate')"
+              i18n="activate by SMS|On trying to change the phone number">Enter the code</button>&ngsp;
+            <ng-container i18n="activate by SMS|On trying to change the phone number">if you just received it. Sometimes SMS takes longer than usual</ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <button
+    class="btn-close"
+    type="button"
+    mat-button color="primary"
+    (click)="onCloseClick()"
+    *ngIf="config.showCloseBtn"
+    i18n="activate by SMS|On close btn label">Cancel</button>
+</xc-modal>
+
+<ng-template #actionIcon>
+  <mat-icon class="action-icon" svgIcon="chevron-right"></mat-icon>
+</ng-template>

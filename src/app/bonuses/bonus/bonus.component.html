@@ -1,0 +1,150 @@
+<div class="bonus-container"
+  [class.disabled]="isDisabled"
+  [ngClass]="mode"
+>
+  <div class="bonus-content-wrapper">
+    <div class="bonus-thumb">
+      <img class="mw-100" [src]="bonus.image || 'assets/images/bonus-symbol.png'">
+    </div>
+    <div class="bonus-content">
+      <h4 class="bonus-name" [ngSwitch]="bonus.name">
+        <ng-container
+          *ngSwitchCase="'manual award from BOU'"
+          i18n="bonus name in case of manual award|On bonus view"
+        >manual award from BOU</ng-container>
+        <ng-container *ngSwitchDefault>{{ bonus.name }}</ng-container>
+      </h4>
+      <ng-container [ngSwitch]="mode">
+        <ng-container *ngSwitchCase="'active'" [ngTemplateOutlet]="active"></ng-container>
+        <ng-container *ngSwitchCase="'claimed'" [ngTemplateOutlet]="claimed"></ng-container>
+        <ng-container *ngSwitchDefault [ngTemplateOutlet]="available"></ng-container>
+      </ng-container>
+    </div>
+  </div>
+  <div class="bonus-footer" *ngIf="mode !== 'claimed'">
+    <div class="left">
+      <button
+        *ngIf="bonus.terms_and_conditions"
+        type="button"
+        class="btn-link terms-link"
+        (click)="openTerms(bonus)"
+        data-e2e="bonus-terms-link"
+        i18n="link|On bonus view"
+      >Terms and Conditions</button>
+    </div>
+    <div #ref class="right" [hidden]="!ref || ref.children.length === 0">
+      <ng-content></ng-content>
+    </div>
+  </div>
+  <mat-icon
+    (touchstart)="disabledInfoTooltip.show()"
+    *ngIf="isDisabled"
+    #disabledInfoTooltip="matTooltip"
+    class="disabled-info"
+    hideDelay="1000"
+    i18n-matTooltip matTooltip="Bonus is not available for you"
+    matTooltipPosition="left"
+    svgIcon="info"
+  ></mat-icon>
+</div>
+
+<ng-template #active>
+  <div class="bonus-progress">
+    <mat-progress-bar [value]="bonus.wagered"></mat-progress-bar>
+    <span class="bonus-value wagered-percent">{{ bonus.wagered | number : '1.0-2' }}%</span>
+  </div>
+  <div class="bonus-details">
+    <div class="bonus-detail">
+      <div
+        *ngIf="config.activeBonusDescription && bonus.description"
+        class="active-bonus-description"
+      >
+        <xc-read-more
+          [completeWords]="true"
+          [content]="bonus.description"
+          [limit]="200"
+          [limitJa]="90"
+          [title]="bonus.name"
+        >
+        </xc-read-more>
+      </div>
+      <span
+        class="bonus-label"
+        i18n="label|On bonus view"
+      >Amount received:</span>
+      <span class="bonus-value">{{ bonus.amount | userCurrency | async }}</span>
+    </div>
+    <div class="bonus-detail">
+      <span
+        class="bonus-label"
+        i18n="label|On bonus view"
+      >Expires:</span>
+      <span class="bonus-value">{{ bonus.expiry_date | date: 'dd/MM/yyyy' }}</span>
+    </div>
+  </div>
+</ng-template>
+
+<ng-template #available>
+  <xc-read-more
+    [completeWords]="true"
+    [content]="bonus.description"
+    [limit]="200"
+    [limitJa]="90"
+    [title]="bonus.name"
+    *ngIf="config.readMoreEnabled"
+  >
+  </xc-read-more>
+  <div class="bonus-description" *ngIf="!config.readMoreEnabled">{{ bonus.description }}</div>
+</ng-template>
+
+<ng-template #claimed>
+  <div class="bonus-details">
+    <div class="bonus-detail">
+      <span
+        class="bonus-label"
+        i18n="label|On bonus view"
+      >Date:</span>
+      <span class="bonus-value">{{ bonus.activated_date | date: 'dd/MM/yyyy' }}</span>
+    </div>
+    <div class="bonus-detail">
+      <span
+        class="bonus-label"
+        i18n="label|On bonus view"
+      >Type:</span>
+      <span class="bonus-value" [ngSwitch]="bonus.reward">
+        <ng-container
+          *ngSwitchCase="'bonus'"
+          i18n="bonus reward type|On bonus view"
+        >bonus</ng-container>
+        <ng-container
+          *ngSwitchCase="'bonus_money'"
+          i18n="bonus reward type|On bonus view"
+        >bonus_money</ng-container>
+        <ng-container
+          *ngSwitchCase="'free_spins'"
+          i18n="bonus reward type|On bonus view"
+        >free_spins</ng-container>
+        <ng-container
+          *ngSwitchCase="'ticket_bonus'"
+          i18n="bonus reward type|On bonus view"
+        >ticket_bonus</ng-container>
+        <ng-container
+          *ngSwitchCase="'prepaid_ticket'"
+          i18n="bonus reward type|On bonus view"
+        >prepaid_ticket</ng-container>
+        <ng-container
+          *ngSwitchCase="'real_money'"
+          i18n="bonus reward type|On bonus view"
+        >real_money</ng-container>
+        <ng-container *ngSwitchDefault>{{ bonus.reward }}</ng-container>
+      </span>
+    </div>
+    <div class="bonus-detail">
+      <span
+        class="bonus-label"
+        i18n="label|On bonus view"
+      >Amount:</span>
+      <span class="bonus-value">{{ bonus.amount | userCurrency | async }}</span>
+    </div>
+  </div>
+</ng-template>

@@ -1,0 +1,32 @@
+<form novalidate [formGroup]="form" (submit)="onSubmit()">
+  <div class="voucher-container">
+    <mat-form-field>
+      <input
+        autocomplete="off"
+        autocorrect="off"
+        formControlName="code"
+        i18n-placeholder placeholder="Voucher"
+        matInput
+        spellcheck="false"
+        type="text"
+      />
+      <mat-error>
+        <xc-form-errors i18n-incorrect incorrect="Voucher code is invalid" [control]="form.controls.code" [force]="submitted"></xc-form-errors>
+      </mat-error>
+    </mat-form-field>
+    <div class="claim-bonus">
+      <button
+        mat-button
+        [color]="config.voucherClaimBtnColor"
+        ngClass.xs="btn-block"
+        data-e2e="bonus-claim-voucher-button"
+      >
+        <ng-container
+          *ngIf="!thinking"
+          i18n="button|On bonus voucher claim view"
+        >Claim Bonus</ng-container>
+        <xc-loader *ngIf="thinking"></xc-loader>
+      </button>
+    </div>
+  </div>
+</form>

@@ -1,0 +1,12 @@
+<ng-container *ngIf="bonuses.length">
+  <ng-container *ngFor="let bonus of bonuses">
+    <xc-bonus [bonus]="bonus" mode="claimed" ></xc-bonus>
+  </ng-container>
+</ng-container>
+
+<xc-inline-notification
+  *ngIf="!bonuses.length"
+  type="info"
+  i18n-title title="No claimed bonuses"
+  i18n-message="notification message|On bonus page" message="You have not claimed any bonus yet."
+></xc-inline-notification>

@@ -1,0 +1,224 @@
+<xc-reality-check-hide (contentReadded)="gameShouldReset$.next(true)" [class.rc-open]="realityCheckService.isOpen$ | async">
+
+  <!-- Wrapper for desktop iframe (includes header and controls) -->
+  <ng-container *ngIf="!isMobile">
+
+    <div class="wrapper" #wrapperElem [class.focus-mode-active]="(layoutService.focusModeIsActive$ | async)">
+
+      <!-- Header -->
+      <header #headerElem>
+        <h1 class="title">
+          {{ (gameData$ | async)?.name }}
+        </h1>
+      </header>
+
+      <div class="game-view" #gameViewElem>
+        <div>
+
+          <!-- Fluid game frame container -->
+          <xc-fluid-container
+            [minWidth]="(game$ | async)?.width || 640"
+            [minHeight]="(game$ | async)?.height || 480"
+            [horizontalMargin]="horizontalMargin || 50"
+            [verticalMargin]="verticalMargin || 90"
+            [container]="(layoutService.focusModeIsActive$ | async) ? '' : '.scroll-content'"
+            [class.no-pointer]="(casinoGameSyncService.isPlayingAllowed$ | async) === false"
+          >
+            <ng-container *ngTemplateOutlet="gameFrame"></ng-container>
+          </xc-fluid-container>
+
+          <!-- Footer -->
+          <footer #footerElem>
+            <span [ngSwitch]="isUserLoggedIn$ | async">
+              <ng-container
+                *ngSwitchCase="true"
+                i18n="label|On game play page for logged in user."
+              >Playing for real money</ng-container>
+              <ng-container
+                *ngSwitchDefault
+                i18n="label|On game play page for logged out user."
+              >Playing for fun</ng-container>
+            </span>
+            <span class="system-time">{{ systemClock$ | async | date: 'HH:mm' }}</span>
+            <ng-container *ngIf="responsibleGamingLinkEnabled$ | async">
+              <br/>
+              <a
+                [routerLink]="['/info/responsible-gaming']"
+                i18n="link|On game play page."
+              >Responsible Gaming</a>
+            </ng-container>
+          </footer>
+
+        </div>
+
+        <!-- Controls -->
+        <aside #controlsElem>
+
+          <!-- Close button -->
+          <div
+            class="control-button"
+            container="body"
+            data-e2e="game-button-close"
+            i18n-matTooltip="tooltip for close game button|On game play page." matTooltip="Close game"
+            matTooltipPosition="left"
+          >
+            <mat-icon class="close-game" (click)="closeGame()" svgIcon="close"></mat-icon>
+          </div>
+
+          <!-- Focus mode button -->
+          <div
+            *ngIf="focusModeIsEnabled && !isMobile"
+            class="control-button"
+            container="body"
+            data-e2e="game-button-focus-mode"
+            i18n-matTooltip="tooltip for focus mode button|On game play page." matTooltip="Toggle focus mode"
+            matTooltipPosition="left"
+          >
+            <mat-icon
+              (click)="toggleFocusMode()"
+              [hidden]="(layoutService.focusModeIsActive$ | async)"
+              class="btn-focus-mode"
+              svgIcon="fullscreen"
+            ></mat-icon>
+            <mat-icon
+              (click)="toggleFocusMode()"
+              [hidden]="!(layoutService.focusModeIsActive$ | async)"
+              class="btn-focus-mode"
+              svgIcon="fullscreen-exit"
+            ></mat-icon>
+          </div>
+
+          <!-- Deposit button -->
+          <div
+            *ngIf="(isUserLoggedIn$ | async) && showDepositButton"
+            class="control-button"
+            container="body"
+            data-e2e="game-button-deposit"
+            i18n-matTooltip="tooltip for make a deposit button|On game play page." matTooltip="Make deposit"
+            matTooltipPosition="left"
+          >
+            <mat-icon
+              xcGoToDeposit
+              class="btn-deposit"
+              svgIcon="deposit"
+            ></mat-icon>
+          </div>
+
+          <!-- Game search button -->
+          <a
+            [routerLink]="['', { outlets: { aside: 'search' }}]"
+            *ngIf="showSearchButton"
+            class="control-button"
+            container="body"
+            data-e2e="game-button-search"
+            i18n-matTooltip="tooltip to open game search|On game play page" matTooltip="Search games"
+            matTooltipPosition="left"
+          >
+            <mat-icon
+              class="btn-search"
+              svgIcon="search"
+            ></mat-icon>
+          </a>
+
+          <!-- Desktop panic button -->
+          <xc-panic-counter-button
+            *ngIf="panicService.showButton$ | async"
+          ></xc-panic-counter-button>
+        </aside>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- Wrapper for mobile iframe (no header or controls) -->
+  <div *ngIf="isMobile" class="fullscreen-frame" [class.with-footer]="(mobileResponsibleGamingLinkEnabled$ | async) === true">
+    <!-- To avoid empty black window show loader until game iframe covers it -->
+    <ng-container *ngIf="((gameLaunchingDone$ | async) !== true) && (casinoGameSyncService.isPlayingAllowed$ | async) !== false">
+      <ng-container *ngTemplateOutlet="loader"></ng-container>
+    </ng-container>
+    <ng-container *ngTemplateOutlet="gameFrame"></ng-container>
+    <div class="mobile-footer" *ngIf="(mobileResponsibleGamingLinkEnabled$ | async) === true">
+      <a
+        [routerLink]="['/info/responsible-gaming']"
+        i18n="link to responsible gaming info page|On game play page."
+      >Responsible Gaming</a>
+    </div>
+  </div>
+
+</xc-reality-check-hide>
+
+<!-- Core game frame (both mobile and desktop) / redirect -->
+<ng-template #gameFrame>
+  <div *ngIf="(isRedirecting$ | async) === true" class="redirecting" i18n="info message|On game page before redirecting player to a game page">Redirection in progress...</div>
+
+  <ng-container *ngIf="game$ | async as game; else loader">
+    <ng-container [ngSwitch]="game?.vendor">
+
+      <!-- Evolution -->
+      <xc-evolution-game-adapter *ngSwitchCase="'evolution'" [game]="game"></xc-evolution-game-adapter>
+
+      <!-- Netent -->
+      <xc-netent
+        *ngSwitchCase="'netent'"
+        [game]="game"
+      ></xc-netent>
+
+      <!-- Play'n GO -->
+      <xc-playngo *ngSwitchCase="'playngo'" [game]="game.vendorProperties"></xc-playngo>
+
+      <!-- All other game vendors, where a standard implementation is enough -->
+      <ng-container *ngSwitchDefault>
+        <xc-game-iframe [game]="game"></xc-game-iframe>
+      </ng-container>
+
+      <!-- When German cool-off period starts then users are not allowed to play a game. This overlay covers the iframe so that game is not clickable. -->
+      <xc-cool-off-overlay
+        *ngIf="(coolingPeriodService.coolOffCountdown$ | async)?.seconds > 0"
+      ></xc-cool-off-overlay>
+
+    </ng-container>
+  </ng-container>
+
+  <ng-container *ngTemplateOutlet="(casinoGameSyncService.isPlayingAllowed$ | async) === false ? instanceBlocked : ''"></ng-container>
+
+  <!-- Mobile panic button -->
+  <xc-panic-drag-button
+    *ngIf="isMobile && (gameLaunchingDone$ | async) && (panicService.showButton$ | async)"
+    [class]="gameVendor$ | async"
+  ></xc-panic-drag-button>
+
+  <!-- Login required -->
+  <div class="login-required" *ngIf="loginRequired">
+    <h2
+      i18n="header for message showed to not logged users|On game play page for games with required authentication that is not met."
+    >This game is only for logged in users.</h2>
+    <p
+      i18n="message showed to not logged users|On game play page for games with required authentication that is not met."
+    >You have to log in to be able to play this game.</p>
+  </div>
+</ng-template>
+
+<!-- Multiple browser tabs detected -->
+<ng-template #instanceBlocked>
+  <div class="instance-blocked" data-e2e="game-instance-blocked">
+    <div class="content">
+      <ng-container *ngIf="!loading; else loader">
+        <h3
+          class="header"
+          i18n="label|On game play page when a German user tries to play in multiple browser tabs"
+        >Game can be played only in one tab.</h3>
+        <p
+          *ngIf="gameData$ | async as gameData"
+          class="message"
+          i18n="label|On game play page when a German user tries to play in multiple browser tabs. The tag at the end is a game name"
+        >Close the other tab to play {{gameData?.name}}.</p>
+      </ng-container>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Loader -->
+<ng-template #loader>
+  <div class="loader" *ngIf="!loginRequired">
+    <xc-loader diameter="72"></xc-loader>
+  </div>
+</ng-template>

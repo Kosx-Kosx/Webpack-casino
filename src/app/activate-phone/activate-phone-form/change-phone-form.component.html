@@ -1,0 +1,102 @@
+<ng-template #spinnerAccentTemplate>
+  <xc-loader></xc-loader>
+</ng-template>
+<div fxLayoutAlign="center" class="mb-4">
+  <form
+    (submit)="onSubmit()"
+    [formGroup]="form"
+    class="text-center"
+    fxFlex.lt-md="100"
+    fxFlex="50"
+    novalidate
+  >
+    <div class="form-group">
+      <div class="input-group" fxLayout>
+        <div fxFlex="35" class="pr-3">
+          <mat-form-field>
+            <input
+              matInput
+              formControlName="mobile_code"
+              type="tel"
+            />
+          </mat-form-field>
+        </div>
+        <div fxFlex>
+          <mat-form-field>
+            <input
+              matInput
+              formControlName="mobile_number"
+              type="tel"
+            />
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="input-group" fxLayout>
+        <div fxFlex="35" class="pr-3">
+          <mat-form-field>
+            <input
+              autocomplete="home tel-country-code"
+              data-e2e="change-phone-new-mobile-code"
+              formControlName="new_mobile_code"
+              i18n-placeholder="new phone country code form field placeholder|In change phone form." placeholder="Code"
+              matInput
+              type="tel"
+            />
+            <mat-error>
+              <xc-form-errors [control]="form.controls.new_mobile_code" [force]="submitted">
+              </xc-form-errors>
+            </mat-error>
+          </mat-form-field>
+        </div>
+        <div fxFlex>
+          <mat-form-field>
+            <input
+              autocomplete="home tel-local"
+              data-e2e="change-phone-new-phone-number"
+              formControlName="new_mobile_number"
+              i18n-placeholder="new phone number form field placeholder|In change phone form." placeholder="New phone number"
+              matInput
+              type="tel"
+            />
+            <mat-error>
+              <xc-form-errors
+                [control]="form.controls.new_mobile_number"
+                [force]="submitted"
+                i18n-pattern="new phone number error|In change phone form." pattern="You have entered an invalid phone number"
+              ></xc-form-errors>
+            </mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+    <div class="form-group text-left">
+      <mat-form-field>
+        <input
+          data-e2e="change-phone-password"
+          formControlName="password"
+          i18n-placeholder="form field placeholder|In change phone form." placeholder="Enter your password"
+          matInput
+          type="password"
+        />
+        <mat-error>
+          <xc-form-errors
+            [control]="form.controls.password"
+            [force]="submitted"
+            i18n-incorrect="password error|In change phone form." incorrect="The provided password is not correct"
+          ></xc-form-errors>
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <button
+      [disabled]="loading"
+      class="btn-block"
+      color="secondary"
+      data-e2e="change-phone-confirm-button"
+      mat-button
+    >
+      <ng-container *ngIf="!loading; else spinnerAccentTemplate" i18n="change phone confirmation button|In change phone form.">Confirm</ng-container>
+    </button>
+  </form>
+</div>

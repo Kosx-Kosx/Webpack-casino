@@ -1,0 +1,62 @@
+<xc-content-carousel [items]="bonuses">
+  <ng-template let-bonus="data">
+    <div class="bonus-carousel-item">
+      <div class="bonus-image-container">
+        <img class="bonus-image" [src]="bonus.image || 'assets/images/bonus-symbol.png'">
+      </div>
+      <div class="bonus-content">
+        <div class="bonus-title">
+          {{ bonus.name }}
+        </div>
+        <xc-read-more
+          [completeWords]="true"
+          [content]="bonus.description"
+          [limit]="100"
+          [limitJa]="80"
+          [title]="bonus.name"
+        ></xc-read-more>
+      </div>
+      <div class="bonus-footer">
+        <button
+          *ngIf="bonus.terms_and_conditions"
+          class="btn-link terms-link"
+          (click)="openTermsModal(bonus)"
+          data-e2e="bonus-carousel-terms-link"
+          i18n="link|On bonuses carousel entry"
+        >Terms and Conditions</button>
+        <ng-container [ngSwitch]="bonus.can_award">
+          <ng-container *ngSwitchCase="true">
+            <button
+              *ngIf="bonus.activation_type === 'on_deposit' && bonus.status !== 'triggered'"
+              mat-button
+              class="btn-block"
+              color="primary"
+              (click)="selectBonus(bonus)"
+              data-e2e="bonus-carousel-deposit-button"
+              i18n="button|On bonuses carousel entry"
+            >Get Bonus</button>
+            <a
+              *ngIf="bonus.activation_type !== 'on_deposit' || bonus.status === 'triggered'"
+              mat-button
+              class="btn-block"
+              color="primary"
+              [routerLink]="['', { outlets: {
+                primary: (bonus.status === 'triggered' && bonus.game) ? ['play', bonus.game.id] : 'casino',
+                modal: null, aside: null
+              }}]"
+              data-e2e="bonus-carousel-play-button"
+              i18n="button|On bonuses carousel entry"
+            >Play</a>
+          </ng-container>
+          <div *ngSwitchDefault class="not-available-info">
+            <mat-icon svgIcon="info"></mat-icon>
+            <span
+              class="not-available-text"
+              i18n="text|On bonuses carousel entry for disabled bonuses"
+            >Bonus is not available for you</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </ng-template>
+</xc-content-carousel>
