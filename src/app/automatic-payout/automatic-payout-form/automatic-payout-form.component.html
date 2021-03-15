@@ -1,0 +1,61 @@
+<ng-container *ngIf="!initialLoading; else loading">
+  <p
+    class="container-description"
+    i18n="description|Above automatic payout form"
+  >When you turn this feature on and set any threshold, you will be prompted to make a withdrawal right after your winnings reach the specified amount.</p>
+  <form
+    (submit)="onSubmit()"
+    [formGroup]="form"
+    novalidate
+    autocomplete="off"
+  >
+    <div class="form-group">
+      <mat-checkbox
+        (change)="onCheckboxChange($event)"
+        class="toggle-checkbox"
+        formControlName="status"
+        data-e2e="automatic-payout-checkbox"
+        i18n="label|Next to checkbox in automatic payout form"
+      >Enable this for my account</mat-checkbox>
+      <mat-form-field>
+        <input
+          formControlName="threshold"
+          autocomplete="off"
+          type="tel"
+          matInput
+          currencyMask [options]="currencyMaskOptions$ | async"
+          data-e2e="automatic-payout-threshold-field"
+          i18n-placeholder="field placeholder|In automatic payout form" placeholder="Threshold"
+        >
+        <mat-error>
+          <!-- Need custom error for one case, to have a working translation (does not get extracted when dynamically setting [max]) -->
+          <div
+            *ngIf="form.controls.threshold.errors && form.controls.threshold.errors.max; else basicError"
+            class="form-control-feedback"
+            i18n="error label|In automatic payout form"
+          >Value cannot be bigger than {{ maxThreshold }}</div>
+          <ng-template #basicError>
+            <xc-form-errors
+              [control]="form.controls.threshold"
+              i18n-min="error label|In automatic payout form" min="Value has to be at least 1"
+            ></xc-form-errors>
+          </ng-template>
+        </mat-error>
+      </mat-form-field>
+    </div>
+    <button
+      [disabled]="form.invalid || form.pristine || updateLoading"
+      mat-button
+      color="primary"
+      class="btn-block"
+      data-e2e="automatic-payout-submit-button"
+    >
+      <xc-loader *ngIf="updateLoading"></xc-loader>
+      <ng-container *ngIf="!updateLoading" i18n="submit button|In automatic payout form">Save</ng-container>
+    </button>
+  </form>
+</ng-container>
+
+<ng-template #loading>
+  <xc-loader diameter="48"></xc-loader>
+</ng-template>
