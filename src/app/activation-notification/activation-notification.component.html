@@ -1,0 +1,7 @@
+<xc-inline-notification
+  type="warning"
+  i18n-title="notification title| notification for inactivated user." title="Your account has not yet been activated!"
+  i18n-message="notification message| notification for inactivated user." message="Please activate your account to have access to all casino functions."
+>
+  <a *ngIf="showActivationLink" (click)="goToActivation()" i18n="not activated account alert link| link to account activation">Activate my account</a>
+</xc-inline-notification>
