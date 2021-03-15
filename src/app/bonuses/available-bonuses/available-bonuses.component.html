@@ -1,0 +1,40 @@
+<ng-container *ngIf="bonuses.length">
+  <ng-container [ngSwitch]="config.carouselEnabled">
+    <xc-bonus-carousel
+      *ngSwitchCase="true"
+      [bonuses]="bonuses"
+      (bonusSelected)="deposit($event)"
+    ></xc-bonus-carousel>
+    <ng-container *ngSwitchDefault>
+      <xc-bonus *ngFor="let bonus of bonuses" [bonus]="bonus">
+        <button
+          *ngIf="bonus.activation_type === 'on_deposit' && bonus.status !== 'triggered'"
+          mat-button
+          color="secondary"
+          type="button"
+          (click)="deposit(bonus)"
+          data-e2e="bonus-deposit-button"
+          i18n="button|on bonuses list entry"
+        >Claim bonus</button>
+        <a
+          *ngIf="bonus.activation_type !== 'on_deposit' || bonus.status === 'triggered'"
+          mat-button
+          color="secondary"
+          [routerLink]="['', { outlets: {
+            primary: (bonus.status === 'triggered' && bonus.game) ? ['play', bonus.game.id] : 'casino',
+            modal: null, aside: null
+          }}]"
+          data-e2e="bonus-play-button"
+          i18n="button|on bonuses list entry"
+        >Play</a>
+      </xc-bonus>
+    </ng-container>
+  </ng-container>
+</ng-container>
+
+<xc-inline-notification
+  *ngIf="!bonuses.length"
+  type="info"
+  i18n-title title="No available bonuses"
+  i18n-message message="You do not have any available bonuses. Check the promotions page for our latest offers!"
+></xc-inline-notification>
