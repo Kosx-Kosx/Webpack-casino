@@ -1,0 +1,22 @@
+<ng-container *ngIf="bonuses.length">
+  <ng-container *ngFor="let bonus of bonuses">
+    <xc-bonus [bonus]="bonus" mode="active">
+      <button
+        mat-button
+        [color]="config.activeCancelBtnColor"
+        [disabled]="cancelling"
+        (xcConfirm)="$event && cancel(bonus)"
+        [title]="bonus.name"
+        i18n-question="cancel confirmation question|In active bonus section on bonus page when pressing cancel button, for example: Are you sure you want to cancel your bonus of <1 balance example=42EUR/>?" question="Are you sure you want to cancel your bonus of {{ bonus.balance | userCurrency | async }}?"
+        i18n="button label|In active bonus section on bonus page."
+      >Cancel bonus</button>
+    </xc-bonus>
+  </ng-container>
+</ng-container>
+
+<xc-inline-notification
+  *ngIf="!bonuses.length"
+  type="info"
+  i18n-title="notification title|In active bonus section on bonus page." title="No active bonuses"
+  i18n-message="notification message|In active bonus section on bonus page." message="You do not have any active bonuses. Check the promotions page for our latest offers!"
+></xc-inline-notification>
