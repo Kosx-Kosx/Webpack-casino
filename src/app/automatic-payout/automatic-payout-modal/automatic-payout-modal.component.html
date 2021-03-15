@@ -1,0 +1,54 @@
+<xc-modal
+  i18n-title="modal title|on automatic payout modal" title="Winnings threshold reached!"
+  size="md"
+>
+  <ng-container *ngIf="!loading; else loader">
+    <p
+      class="payout-message"
+      i18n="text|on automatic payout modal"
+    >You reached your automatic payout threshold of {{ threshold | currency: userCurrency : 'symbol-narrow' : '1.0' }}, would you like to start a withdrawal process?</p>
+    <div class="buttons">
+      <button
+        (click)="modal.close()"
+        mat-button
+        color="secondary"
+        data-e2e="automatic-payout-modal-no-button"
+        i18n="button label|on automatic payout modal"
+      >No</button>
+      <a
+        [routerLink]="actionService.getPaymentsCommands('withdraw')"
+        [queryParams]="{ trigger: 'auto-payout' }"
+        mat-button
+        color="primary"
+        data-e2e="automatic-payout-modal-yes-button"
+        i18n="button label|on automatic payout modal"
+      >Yes</a>
+    </div>
+    <button
+      *ngIf="!showForm"
+      (click)="showForm = true"
+      class="settings-toggle btn-link"
+      data-e2e="automatic-payout-modal-show-settings-link"
+    >
+      <ng-container i18n="link|on automatic payout modal">I want to adjust my settings</ng-container>
+      <mat-icon svgIcon="chevron-down"></mat-icon>
+    </button>
+    <ng-container *ngIf="showForm">
+      <xc-automatic-payout-form class="auto-payout-form"></xc-automatic-payout-form>
+      <button
+        (click)="showForm = false"
+        class="settings-toggle btn-link"
+        data-e2e="automatic-payout-modal-hide-settings-link"
+      >
+        <ng-container i18n="link|on automatic payout modal">Hide settings</ng-container>
+        <mat-icon svgIcon="chevron-up"></mat-icon>
+      </button>
+    </ng-container>
+  </ng-container>
+</xc-modal>
+
+<ng-template #loader>
+  <div class="loader-container">
+    <xc-loader diameter="64"></xc-loader>
+  </div>
+</ng-template>
