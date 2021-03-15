@@ -1,0 +1,34 @@
+<ng-template #spinnerAccentTemplate>
+  <xc-loader></xc-loader>
+</ng-template>
+<form
+  novalidate
+  [formGroup]="form"
+  (submit)="onSubmit()">
+  <mat-form-field>
+    <input
+      autocomplete="off"
+      class="input-lg"
+      data-e2e="activate-phone-code"
+      formControlName="code"
+      i18n-placeholder placeholder="Enter the validation code (Check SMS)"
+      inputmode="numeric"
+      matInput
+      pattern="[0-9]*"
+    />
+    <mat-error>
+      <xc-form-errors [control]="form.controls.code" [force]="submitted">
+      </xc-form-errors>
+    </mat-error>
+  </mat-form-field>
+  <div class="btn-wrapper">
+    <button
+      data-e2e="activate-phone-confirm-button"
+      mat-button
+      [color]="config.confirmButtonColor"
+      class="btn-block"
+      [disabled]="loading">
+      <ng-container *ngIf="!loading; else spinnerAccentTemplate" i18n>Confirm</ng-container>
+    </button>
+  </div>
+</form>
