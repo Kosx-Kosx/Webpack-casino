@@ -1,0 +1,98 @@
+<ng-container *ngIf="bonuses$ | async; let bonuses; else loading">
+  <ng-container
+    [ngTemplateOutlet]="config.tabView ? tabView : singleView"
+    [ngTemplateOutletContext]="{ bonuses: bonuses }"
+  ></ng-container>
+</ng-container>
+
+<ng-template #tabView let-bonuses="bonuses">
+  <mat-button-toggle-group [value]="currentTab">
+    <mat-button-toggle
+      [value]="bonusGroupType.ACTIVE"
+      (click)="switchTab(bonusGroupType.ACTIVE)"
+      data-e2e="bonuses-active-tab-button"
+      i18n="tab title|on bonuses tab view"
+    >Active</mat-button-toggle>
+    <mat-button-toggle
+      [value]="bonusGroupType.AVAILABLE"
+      (click)="switchTab(bonusGroupType.AVAILABLE)"
+      data-e2e="bonuses-available-tab-button"
+      i18n="tab title|on bonuses tab view"
+    >Available</mat-button-toggle>
+    <mat-button-toggle
+      [value]="bonusGroupType.CLAIMED"
+      (click)="switchTab(bonusGroupType.CLAIMED)"
+      data-e2e="bonuses-claimed-tab-button"
+      i18n="tab title|on bonuses tab view"
+    >Claimed</mat-button-toggle>
+  </mat-button-toggle-group>
+
+  <ng-container [ngSwitch]="currentTab">
+    <div
+      *ngSwitchCase="bonusGroupType.ACTIVE"
+      class="tab-content"
+      [@easeInOut]="easeInOutDurationParams"
+    >
+      <xc-active-bonuses [bonuses]="bonuses.active"></xc-active-bonuses>
+      <button
+        *ngIf="!bonuses.active.length"
+        class="btn-link link-to-available"
+        (click)="switchTab(bonusGroupType.AVAILABLE)"
+        data-e2e="bonuses-available-link"
+        i18n="link|On active bonuses tab"
+      >Check your available bonuses</button>
+      <p
+        class="voucher-text"
+        i18n="text|On active bonuses tab"
+      >Do you have a voucher code?</p>
+      <xc-voucher-claim-form></xc-voucher-claim-form>
+    </div>
+    <xc-available-bonuses
+      *ngSwitchCase="bonusGroupType.AVAILABLE"
+      class="tab-content"
+      [class.full-width-content]="bonuses.available.length"
+      [@easeInOut]="easeInOutDurationParams"
+      [bonuses]="bonuses.available"
+    ></xc-available-bonuses>
+    <xc-claimed-bonuses
+      *ngSwitchCase="bonusGroupType.CLAIMED"
+      class="tab-content"
+      [@easeInOut]="easeInOutDurationParams"
+      [bonuses]="bonuses.claimed"
+    ></xc-claimed-bonuses>
+  </ng-container>
+</ng-template>
+
+<ng-template #singleView let-bonuses="bonuses">
+  <h3
+    class="container-section-title"
+    i18n="heading|On bonuses view"
+  >Active Bonuses</h3>
+  <xc-active-bonuses [bonuses]="bonuses.active" class="bonus-type"></xc-active-bonuses>
+
+  <h3
+    class="container-section-title"
+    i18n="heading|On bonuses view"
+  >Available Bonuses</h3>
+  <xc-available-bonuses [bonuses]="bonuses.available" class="bonus-type"></xc-available-bonuses>
+
+  <h4
+    class="container-section-title"
+    i18n="heading|On bonuses view"
+  >Do you have a voucher code?</h4>
+  <xc-voucher-claim-form class="bonus-type"></xc-voucher-claim-form>
+
+  <ng-container *ngIf="(isSgaPlayer$ | async) === false">
+    <h3
+      class="container-section-title"
+      i18n="heading|On bonuses view"
+    >Claimed Bonuses</h3>
+    <xc-claimed-bonuses [bonuses]="bonuses.claimed" class="bonus-type"></xc-claimed-bonuses>
+  </ng-container>
+</ng-template>
+
+<ng-template #loading>
+  <div class="bonus-loader">
+    <xc-loader diameter="92"></xc-loader>
+  </div>
+</ng-template>
