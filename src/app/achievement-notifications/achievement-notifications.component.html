@@ -1,0 +1,24 @@
+<div *ngIf="achievementService.levelUpNotificationQueue.length > 0" [@easeInOut]>
+  <a
+    (click)="achievementService.dismissNotifications()"
+    class="btn-dismiss btn-sm btn-block"
+    i18n="close button|On achievement notfications."
+  >Dismiss all</a>
+  <div class="achievement-notification" *ngFor="let notification of achievementService.levelUpNotificationQueue">
+    <mat-icon svgIcon="casino"></mat-icon>
+    <div>
+      <h4
+        i18n="title|On achievement notfications, for example: Woop! Level <1 level_name example=42/> reached!"
+      >Woop! Level {{ notification.name }} reached!</h4>
+      <ng-container *ngIf="(isSgaPlayer$ | async) === false">
+        <div i18n="message|On achievement notfications.">Go grab your reward now!</div>
+        <a
+          mat-button
+          color="primary"
+          [routerLink]="['', { outlets: { primary: 'casino-activity', modal: null }}]"
+          i18n="continue button|On achievement notfications."
+        >Claim reward</a>
+      </ng-container>
+    </div>
+  </div>
+</div>
