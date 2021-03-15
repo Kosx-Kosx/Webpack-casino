@@ -1,0 +1,16 @@
+<div *xcMediaIf="'gt-xs'">
+  <!-- TODO: Refactor this when i18n from typescript is possible
+    Or, even better - this could come from BO (currently we can get a name, but not translated) -->
+  <h2 *ngIf="casinoConfig.showLobbyTitle" [ngSwitch]="lobby$ | async">
+    <span *ngSwitchCase="'casino'" i18n>Casino</span>
+    <span *ngSwitchCase="'live-casino'" i18n>Live Casino</span>
+    <span *ngSwitchCase="'scratch-card'" i18n>Scratch Cards</span>
+  </h2>
+</div>
+
+<div class="lobby-banner" ngClass.gt-md="gt-md" *ngIf="casinoConfig.showLobbyBanner" [hidden]="!hasPromotion">
+  <xc-media-box-cs [categoryName]="lobby$ | async" (hasPromotions)="hasPromotion = $event"></xc-media-box-cs>
+  <xc-winners-scroller *xcMediaIf="'gt-md'" [isPaused]="routeService.modalActive$ | async" layout="vertical"></xc-winners-scroller>
+</div>
+
+<xc-casino-lobby [lobbySlug]="lobby$ | async" [categoryName]="category$ | async"></xc-casino-lobby>
