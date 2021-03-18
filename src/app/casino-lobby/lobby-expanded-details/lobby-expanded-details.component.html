@@ -1,0 +1,95 @@
+<ng-container
+  *ngIf="visible"
+>
+  <div
+    [style.background-image]="background"
+    class="background"
+  ></div>
+
+  <div class="wrapper">
+    <span class="arrow" [ngStyle]="{ left: leftOffset + '%' }"></span>
+    <button
+      (click)="detailsController.blur()"
+      class="close"
+      data-e2e="expanded-details-close-button"
+    >
+      <mat-icon svgIcon="close"></mat-icon>
+    </button>
+    <article class="content">
+      <header class="details-header">
+        <h3
+          class="game-name"
+          data-e2e="expanded-details-game-name-label"
+        >{{ game.name }}</h3>
+        <h4
+          class="vendor-name"
+          data-e2e="expanded-details-vendor-name-label"
+        >{{ (game.subVendorName && casinoConfig.gameThumb.preferSubvendor ? game.subVendorName : game.vendorName) | titlecase }}</h4>
+      </header>
+
+      <section
+        [innerHTML]="game.description"
+        *ngIf="!loading else placeholder"
+      ></section>
+
+      <footer *ngIf="!loading">
+        <ng-container [ngSwitch]="(isUserLoggedIn$ | async) === true" *ngIf="game.enabled">
+          <ng-container *ngSwitchCase="true">
+            <button
+              [routerLink]="[gamePath]"
+              class="ellipsis"
+              color="primary"
+              data-e2e="expanded-details-play-button"
+              mat-button
+              type="button"
+              i18n="play game button|On game expanded details view"
+            >Play now</button>
+          </ng-container>
+          <ng-container *ngSwitchCase="false">
+            <button
+              (click)="loginAndPlay()"
+              class="ellipsis"
+              color="primary"
+              data-e2e="expanded-details-login-and-play-button"
+              mat-button
+              type="button"
+              i18n="play game button|On game expanded details view"
+            >Login &amp; Play</button>
+            <button
+              [routerLink]="[gamePath]"
+              *ngIf="!game.loginRequired"
+              class="ellipsis"
+              color="secondary"
+              data-e2e="expanded-details-play-for-fun-button"
+              mat-button
+              type="button"
+              i18n="play game button|On game expanded details view"
+            >Try</button>
+            <div
+              *ngIf="game.loginRequired && game.enabled"
+              class="login-required-info"
+              data-e2e="expanded-details-login-required-info-label"
+            >
+              <mat-icon svgIcon="info"></mat-icon>
+              <ng-container i18n="info label|On game expanded details view">You have to be logged in to play this game.</ng-container>
+            </div>
+          </ng-container>
+        </ng-container>
+        <div
+          *ngIf="!game.enabled"
+          class="login-required-info"
+          data-e2e="expanded-details-game-disabled-info-label"
+        >
+          <mat-icon svgIcon="info"></mat-icon>
+          <ng-container i18n="info label|On game expanded details view">This game is disabled for now.</ng-container>
+        </div>
+      </footer>
+    </article>
+  </div>
+</ng-container>
+
+<ng-template #placeholder>
+  <section class="placeholder">
+    <xc-loader diameter="64"></xc-loader>
+  </section>
+</ng-template>
