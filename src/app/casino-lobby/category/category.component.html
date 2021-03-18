@@ -1,0 +1,15 @@
+<ng-container
+  *ngFor="let layout of category.layoutConnection.edges; trackBy: itemIdentity; let layoutIndex = index"
+>
+  <div> <!-- This <div> wrapper is required to avoid stretching single-row layouts to be 2-rows high -->
+    <xc-layout
+      [layout]="layout.node"
+      [layoutIndex]="layoutIndex"
+      [class.single-row]="!hasMultipleRows(layout.node)"
+    ></xc-layout>
+    <xc-lobby-expanded-details
+      *ngIf="casinoConfig.gameThumb.showGameInfo"
+      [layoutIndex]="layoutIndex"
+    ></xc-lobby-expanded-details>
+  </div>
+</ng-container>
