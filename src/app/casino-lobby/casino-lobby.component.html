@@ -1,0 +1,100 @@
+<div class="loading" *ngIf="!activeCategory && loading">
+  <xc-loader diameter="72"></xc-loader>
+</div>
+
+<div class="lobby-not-exist" *ngIf="!categories.length && !loading">
+  <mat-icon svgIcon="exclamation"></mat-icon>
+  <div class="lobby-not-exists-text" i18n="info label|On lobby when lobby not exist or is empty">Casino lobby does not exist.</div>
+</div>
+
+<nav
+  *ngIf="categories.length"
+  class="lobby-categories mat-tabs-center"
+  mat-tab-nav-bar
+  ngClass.lt-lg="mat-block-display"
+>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" *ngIf="areCategoriesScrollable; else nonScrollableTabs">
+    <xc-slider-tabs
+      (select)="navigateTo($event)"
+      [itemWidth]="navItemWidth"
+      [list]="categories"
+      [selected]="activeCategory"
+      [center]="casinoConfig.scrollableCategoriesCenterAlignment || false"
+      fxLayoutAlign="center center"
+      itemKey="slug"
+    >
+      <ng-template let-data="data">
+        <a mat-tab-link [class.active]="data.slug === activeCategory.slug">
+          <span class="category-icon" [class]="'category-icon ' + data.slug"></span>
+          <ng-container [ngSwitch]="data.slug">
+            <ng-container *ngSwitchCase="'favourite-games'" i18n="menu item label|In mobile lobby. Visible only for logged in users.">Favourite games</ng-container>
+            <ng-container *ngSwitchDefault>{{ data.name }}</ng-container>
+          </ng-container>
+
+        </a>
+      </ng-template>
+    </xc-slider-tabs>
+
+    <!-- search icon -->
+    <span
+      *ngIf="casinoConfig.showSearchButton"
+      class="icon search-game-icon"
+      mat-tab-link
+      tabindex="0"
+      xcToggleSearch
+    >
+      <i class="fa fa-search"></i>
+    </span>
+
+  </div>
+
+  <!-- Desktop Menu -->
+  <ng-template #nonScrollableTabs>
+    <a
+      [active]="category.slug === activeCategory.slug"
+      [class.active]="category.slug === activeCategory.slug"
+      [routerLink]="['..', category.slug]"
+      *ngFor="let category of categories"
+      mat-tab-link
+    >
+      <span [class]="'category-icon ' + category.slug"></span>
+      <ng-container [ngSwitch]="category.slug">
+        <ng-container *ngSwitchCase="'favourite-games'" i18n="menu item label|In mobile lobby. Visible only for logged in users.">Favourite games</ng-container>
+        <ng-container *ngSwitchDefault>{{ category.name }}</ng-container>
+      </ng-container>
+    </a>
+  </ng-template>
+
+  <!-- Search component -->
+  <ng-container *ngIf="casinoConfig.showInlineSearch">
+    <xc-game-search-inline
+      *xcMediaIf="'gt-sm'"
+      [variation]="gameSearchInlineVariations.DROPDOWN"
+    ></xc-game-search-inline>
+  </ng-container>
+
+</nav>
+
+<xc-category
+  [category]="activeCategory"
+  *ngIf="activeCategory"
+></xc-category>
+<div
+  *ngIf="showLoadMore"
+  class="text-center px-3 pb-3"
+>
+  <button
+    (click)="loadMore()"
+    color="secondary"
+    mat-button
+    type="button"
+  >
+    <span *ngIf="!loading" i18n>Load More</span>
+    <xc-loader *ngIf="loading"></xc-loader>
+  </button>
+</div>
+
+<!-- When German cool-off period is active then countdown timer button should be visible. -->
+<xc-cooling-period-button [linked]="true" source="COOL_OFF"></xc-cooling-period-button>
