@@ -1,0 +1,30 @@
+<ng-container [ngSwitch]="block.type">
+
+  <!-- Game thumb -->
+  <xc-game-thumb
+    [dimension]="dimension"
+    [game]="block.game"
+    [showFooter]="config.gameThumb.footer.isVisible"
+    [showGameInfo]="config.gameThumb.showGameInfo"
+    [showGameVendor]="config.gameThumb.showGameVendor"
+    [showVolatility]="config.gameThumb.footer.showVolatility"
+    [navigateToSelectedGame]="!detailsController.active"
+    (showDetails)="detailsController.focus(layoutIndex, blockIndex, block)"
+    *ngSwitchCase="'game'"
+  ></xc-game-thumb>
+
+  <!-- CS1 promo -->
+  <xc-media-box-lobby
+    [promotionsDTO]="block.promotions"
+    [sizeX]="block.sizeX"
+    [sizeY]="block.sizeY"
+    *ngSwitchCase="'promotions'"
+  ></xc-media-box-lobby>
+
+</ng-container>
+
+<!-- Ribbon - 3D variant -->
+<xc-ribbon
+  *ngIf="config.gameThumb.showRibbonIn3D && block?.game?.label"
+  [label]="block.game.label"
+></xc-ribbon>
