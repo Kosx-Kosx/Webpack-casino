@@ -1,0 +1,18 @@
+<xc-block
+  [block]="block"
+  [blockIndex]="blockIndex"
+  [class.square]="block.sizeX === block.sizeY"
+  [class.square-single]="block.sizeX === block.sizeY && block.sizeX === 1"
+  [class.square-double]="block.sizeX === block.sizeY && block.sizeX > 1"
+  [class.tall]="block.sizeX < block.sizeY"
+  [class.type-game]="block.type === 'game'"
+  [class.type-promotion]="block.type === 'promotions'"
+  [class.wide]="block.sizeX > block.sizeY"
+  [layout]="layout"
+  [layoutIndex]="layoutIndex"
+  [style.gridColumnEnd]="block.col + block.sizeX"
+  [style.gridColumnStart]="block.col"
+  [style.gridRowEnd]="block.row + block.sizeY"
+  [style.gridRowStart]="block.row"
+  *ngFor="let block of layout.blocks; trackBy: itemIdentity; let blockIndex = index"
+></xc-block>
